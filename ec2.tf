@@ -73,6 +73,31 @@ data "aws_ami" "amazon_linux_2" {
     }
 }
 
+resource "aws_route_table" "main_rt" {
+    vpc_id = aws_vpc.main.id
+    tags = {
+        "Name" = "Jenkins Route Table"
+    }
+}
+
+resource "aws_route_table_association" "public" {
+    subnet_id = aws_subnet.subnet_1.id
+    route_table_id = aws_route_table.main_rt.id
+}
+
+resource "aws_internet_gateway" "myigw" {
+   vpc_id = aws_vpc.main.id
+   tags = {
+    "Name" = "Jenkins IGW"
+   }
+}
+
+resource "aws_route" "internet_route" {
+    destination_cidr_block = "0.0.0.0/0"
+    route_table_id = aws_route_table.main_rt.id
+    gateway_id = aws_internet_gateway.myigw.id
+}
+
 # create ec2 instance
 resource "aws_instance" "jenkins_server" {
     ami = data.aws_ami.amazon_linux_2.id
@@ -80,20 +105,23 @@ resource "aws_instance" "jenkins_server" {
     subnet_id = aws_subnet.subnet_1.id
     vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
     key_name = "keypair_pem"
+    associate_public_ip_address = true
 
     tags = {
         Name = "jenkins-server"
-  }
+    }
 }
+
 
 # create null resource block
 resource "null_resource" "name" {
-
+    
     # ssh into ec2 instance
     connection {
         type = "ssh"
         user = "ec2_user"
-        private_key = file("keypair_pem.pem")
+        # private_key = file("~/labs/terraform-install-jenkins-on-ec2/keypair_pem.pem")
+        private_key = "${file("~/labs/terraform-install-jenkins-on-ec2/keypair_pem.pem")}"
         host = aws_instance.jenkins_server.public_ip
     }
 
@@ -113,6 +141,7 @@ resource "null_resource" "name" {
 
     # wait for jenkins ec2 instance to start before make connection
     depends_on = [aws_instance.jenkins_server]
+
 }
 
 output "jenkins_url" {
