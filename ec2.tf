@@ -7,6 +7,7 @@ provider "aws" {
 # create vpc resource
 resource "aws_vpc" "main" {
     cidr_block = "10.0.0.0/16"
+    enable_dns_hostnames = true
     tags = {
         Name = "main-vpc"
     }
@@ -73,6 +74,7 @@ data "aws_ami" "amazon_linux_2" {
     }
 }
 
+# create route table
 resource "aws_route_table" "main_rt" {
     vpc_id = aws_vpc.main.id
     tags = {
@@ -80,11 +82,13 @@ resource "aws_route_table" "main_rt" {
     }
 }
 
+# associate route table with subnet
 resource "aws_route_table_association" "public" {
     subnet_id = aws_subnet.subnet_1.id
     route_table_id = aws_route_table.main_rt.id
 }
 
+# create internet gateway
 resource "aws_internet_gateway" "myigw" {
    vpc_id = aws_vpc.main.id
    tags = {
@@ -92,6 +96,7 @@ resource "aws_internet_gateway" "myigw" {
    }
 }
 
+# create route to internet gateway
 resource "aws_route" "internet_route" {
     destination_cidr_block = "0.0.0.0/0"
     route_table_id = aws_route_table.main_rt.id
@@ -104,7 +109,7 @@ resource "aws_instance" "jenkins_server" {
     instance_type = "t2.micro"
     subnet_id = aws_subnet.subnet_1.id
     vpc_security_group_ids = [aws_security_group.ec2_security_group.id]
-    key_name = "keypair_pem"
+    key_name = "anotherkeypair"
     associate_public_ip_address = true
 
     tags = {
@@ -112,16 +117,14 @@ resource "aws_instance" "jenkins_server" {
     }
 }
 
-
 # create null resource block
 resource "null_resource" "name" {
     
     # ssh into ec2 instance
     connection {
         type = "ssh"
-        user = "ec2_user"
-        # private_key = file("~/labs/terraform-install-jenkins-on-ec2/keypair_pem.pem")
-        private_key = "${file("~/labs/terraform-install-jenkins-on-ec2/keypair_pem.pem")}"
+        user = "ec2-user"
+        private_key = file("~/labs/terraform-install-jenkins-on-ec2/anotherkeypair.pem")
         host = aws_instance.jenkins_server.public_ip
     }
 
@@ -144,6 +147,7 @@ resource "null_resource" "name" {
 
 }
 
+# print jenkins URL
 output "jenkins_url" {
     value = join ("", ["http://", aws_instance.jenkins_server.public_dns, ":8080"])
 }
