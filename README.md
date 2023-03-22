@@ -3,9 +3,8 @@
 ## Create AWS named profile
 1. Install AWS CLI - [AWS CLI Installation](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 2. Create AWS access keys - [AWS Access Keys](https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up.html)
-3. Configure AWS access keys on your machine - ```aws configure --profile <profile_name>```
+3. Configure AWS access keys on your machine - ```aws configure --profile terraform```
 4. Enter ```aws_access_key_id``` and ```aws_secret_access_key``` created
-5. Use ```<profile_name>``` for ```profile``` in ec2.tf file
 
 ## Create EC2 Key Pair
 1. Create .pem EC2 key pair - [Create Key Pair](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/create-key-pairs.html)
