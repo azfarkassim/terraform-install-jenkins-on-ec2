@@ -16,13 +16,13 @@
 2. View Terraform plan - ```terraform plan```
 3. Apply Terraform plan - ```terraform apply```
 
-### Apply Jenkins Initial Admin Password
+## Apply Jenkins Initial Admin Password
 1. Copy ```InitialAdminPassword``` printed on terminal
 2. Go to Jenkins URL printed on terminal
 3. Enter ```InitialAdminPassword``` in Unlock Jenkins window
 4. Install the necessary Jenkins plugins
 5. Jenkins is now ready to use!
 
-### Destroy Terraform
+## Destroy Terraform
 1. Destroy Terraform - ```terraform destroy```
 
